@@ -22,24 +22,23 @@ from keras.layers import Dense, Dropout
 from sklearn.preprocessing import label_binarize
 import plotly.graph_objects as go
 from collections import OrderedDict
-import os
 import warnings
-import plotly.graph_objects as go
-from collections import OrderedDict
 
+# Load data and column descriptions.
 warnings.filterwarnings("ignore")
 # Load data and column descriptions.
 # data_file = """D:\Foundations_of_DataScience\Projects\Final_projects\lending_club_dataset_2007_2020\lending_club_clean.feather"""  # Replace with your CSV file path
 column_description_file = "LCDataDictionary.xlsx" # Replace with your column description CSV file path
 dfs = []
-for i in range(98):
+for i in range(9):
     file_path = os.path.join(directory, f'chunk_{i}.csv')
     df = pd.read_csv(file_path)
     dfs.append(df)
 
 data = pd.concat(dfs, ignore_index=True)
 df=data.copy()
-print(data_init.columns)
+
+data = pd.read_feather(data_file)
 
 columns_to_remove = [
     "hardship_type",
@@ -69,7 +68,7 @@ data[categorical_cols] = categorical_imputer.fit_transform(data[categorical_cols
 categorical_cols = data.select_dtypes(include=['object']).columns
 for col in categorical_cols:
     data[col] = pd.factorize(data[col])[0]
-column_descriptions = pd.read_excel(column_description_file)
+column_descriptions = pd.read_csv(column_description_file)
 
 # Splitting the dataset into X and y
 X = data.drop("loan_status", axis=1)
@@ -398,6 +397,15 @@ fig = go.Figure(data=data, layout=layout)
 iplot(fig, filename='stacked-bar')
 
 
+# Assuming the previous code is defined above this point, add the following visualization under the EDA tab:
+
+# Import necessary libraries for plotting
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from collections import OrderedDict
+
 # Group data for visualization
 by_loan_amount = df.groupby(['region','addr_state'], as_index=False).loan_amount.sum()
 by_interest_rate = df.groupby(['region', 'addr_state'], as_index=False).interest_rate.mean()
@@ -563,9 +571,6 @@ p_charged_off = go.Scatter(
     )
 )
 
-p_defaults = go.Scatter(
-    x=x_data
-        # Import necessary libraries for plotting
 
 # Function to prepare data for metrics DataFrame
 def prepare_metrics_df(df):
@@ -602,9 +607,9 @@ def create_choropleth_map(metrics_df):
            [0.6, 'rgb(140, 227, 105)'], [0.8, 'rgb(105, 201, 67)'], [1.0, 'rgb(59, 159, 19)']]
 
     # Add text to display in the map
-    metrics_df['text'] = metrics_df['state_codes'] + '<br>' +
+    metrics_df['text'] = (metrics_df['state_codes'] + '<br>' +
                         'Average loan interest rate: ' + metrics_df['interest_rate'] + '<br>' +
-                        'Average annual income: ' + metrics_df['annual_income']
+                        'Average annual income: ' + metrics_df['annual_income'])
 
     data = [dict(
         type='choropleth',
