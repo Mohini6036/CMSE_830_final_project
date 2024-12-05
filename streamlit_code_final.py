@@ -27,7 +27,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 # Load data and column descriptions.
-data_file = """D:\Foundations_of_DataScience\Projects\Final_projects\lending_club_dataset_2007_2020\lending_club_clean.feather"""  # Replace with your CSV file path
+# data_file = """D:\Foundations_of_DataScience\Projects\Final_projects\lending_club_dataset_2007_2020\lending_club_clean.feather"""  # Replace with your CSV file path
 column_description_file = "LCDataDictionary.xlsx" # Replace with your column description CSV file path
 dfs = []
 for i in range(98):
