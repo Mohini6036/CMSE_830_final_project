@@ -38,6 +38,7 @@ for i in range(98):
     dfs.append(df)
 
 data = pd.concat(dfs, ignore_index=True)
+df=data.copy()
 print(data_init.columns)
 
 columns_to_remove = [
