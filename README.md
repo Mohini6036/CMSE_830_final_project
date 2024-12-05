@@ -30,25 +30,6 @@ The dataset includes customer-level information related to loan applications, su
 - **Past credit history**
 - **Loan payment behavior**
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone <repository_url>
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd lending-risk-analysis
-   ```
-3. Install required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Usage
-1. Run the Streamlit app:
-   ```bash
-   streamlit run app.py
-   ```
 2. Interact with the dashboard to:
    - View data visualizations.
    - Explore feature correlations.
