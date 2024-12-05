@@ -35,19 +35,6 @@ The dataset includes customer-level information related to loan applications, su
    - Explore feature correlations.
    - Observe model predictions and evaluation metrics.
 
-## Results
-- **Model Performance:**
-  - The Gradient Boosting model achieved the highest ROC-AUC score of **X.XX**, outperforming other classifiers.
-  - ANN demonstrated promising results in handling complex patterns in the data.
-- **Key Insights:**
-  - Credit history and payment behavior are the most significant predictors of loan default risk.
-  - High-income customers with stable credit utilization show significantly lower default probabilities.
-
-## Future Work
-- Expand the model to include additional socio-economic features.
-- Integrate real-time data pipelines for live risk analysis.
-- Enhance the dashboard with more granular visualizations and explanations using SHAP values.
-
 ## Contributing
 Contributions are welcome! Feel free to submit a pull request or open an issue.
 
