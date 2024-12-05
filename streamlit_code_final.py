@@ -23,12 +23,20 @@ from sklearn.preprocessing import label_binarize
 import plotly.graph_objects as go
 from collections import OrderedDict
 import os
+import warnings
 
+warnings.filterwarnings("ignore")
 # Load data and column descriptions.
 data_file = """D:\Foundations_of_DataScience\Projects\Final_projects\lending_club_dataset_2007_2020\lending_club_clean.feather"""  # Replace with your CSV file path
-column_description_file = """D:\Foundations_of_DataScience\Projects\Final_projects\lending_club_dataset_2007_2020\lending_club_clean_dict.csv""" # Replace with your column description CSV file path
+column_description_file = "LCDataDictionary.xlsx" # Replace with your column description CSV file path
+dfs = []
+for i in range(98):
+    file_path = os.path.join(directory, f'chunk_{i}.csv')
+    df = pd.read_csv(file_path)
+    dfs.append(df)
 
-data = pd.read_feather(data_file)
+data = pd.concat(dfs, ignore_index=True)
+print(data_init.columns)
 
 columns_to_remove = [
     "hardship_type",
@@ -58,7 +66,7 @@ data[categorical_cols] = categorical_imputer.fit_transform(data[categorical_cols
 categorical_cols = data.select_dtypes(include=['object']).columns
 for col in categorical_cols:
     data[col] = pd.factorize(data[col])[0]
-column_descriptions = pd.read_csv(column_description_file)
+column_descriptions = pd.read_excel(column_description_file)
 
 # Splitting the dataset into X and y
 X = data.drop("loan_status", axis=1)
