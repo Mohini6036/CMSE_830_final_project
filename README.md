@@ -1,4 +1,73 @@
 # CMSE_830_final_project
-This repo contains the streamlit dashboard of my mid term project for CMSE 830 course Overview This project is a dashboard for Credit Risk Analysis, developed using Streamlit. The dashboard provides insights into credit risk through various data visualizations, including credit score distribution, default rate by loan purpose, correlation heatmaps, and interactive plots with filters. The goal is to help users understand relationships between factors like loan amount, income, credit score, and other features affecting credit risk.
+# Lending Risk Analysis Project
 
-Key Features: Interactive Visualizations: Visualize the distribution of loan amounts, default rates, and correlations between variables. Smoothing Techniques & Trend Analysis: Analyze trends in credit risk factors using regression and smoothing techniques. Regression Analysis: Understand the relationships between different factors like income, loan amounts, and credit score. Forecasting & Data Trends: Predict potential credit risk based on historical data.
+## Overview
+This project aims to analyze and predict the risk associated with lending loans to customers. The objective is to develop a robust solution that helps financial institutions make data-driven decisions about loan approvals while minimizing default risks. A comprehensive web application built using **Streamlit** serves as the project's final deliverable, allowing stakeholders to interact with data insights and model predictions.
+
+## Features
+- **Exploratory Data Analysis (EDA):** Unveils patterns and trends in the dataset, including correlations between key variables like loan amount, income, and payment history.
+- **Data Preprocessing:** Handles missing values, scales numerical data, and encodes categorical variables.
+- **Feature Engineering:** Creates derived metrics such as debt-to-income ratio and credit utilization.
+- **Dimensionality Reduction:** Implements techniques like PCA and SVD for reducing data complexity.
+- **Modeling:** Compares and evaluates multiple machine learning models:
+  - Support Vector Machines (SVM)
+  - Gradient Boosting (XGBoost, LightGBM)
+  - Artificial Neural Networks (ANN)
+  - Decision Tree (DT)
+  - Naive Bayes (NB)
+  - K-Nearest Neighbor (KNN)
+  - Optimally Weighted Fuzzy K-Nearest Neighbor (OWFKNN)
+- **Imbalanced Data Handling:** Utilizes techniques like SMOTE and under-sampling to balance the dataset.
+- **Model Evaluation:** Includes metrics such as precision, recall, F1-score, ROC-AUC, and confusion matrices.
+- **Interactive Dashboard:** Visualizes model performance, predictions, and key data insights through an intuitive Streamlit app.
+
+## Dataset
+The dataset includes customer-level information related to loan applications, such as:
+- **Age**
+- **Income**
+- **Homeownership status**
+- **Loan amount requested**
+- **Past credit history**
+- **Loan payment behavior**
+
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository_url>
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd lending-risk-analysis
+   ```
+3. Install required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Usage
+1. Run the Streamlit app:
+   ```bash
+   streamlit run app.py
+   ```
+2. Interact with the dashboard to:
+   - View data visualizations.
+   - Explore feature correlations.
+   - Observe model predictions and evaluation metrics.
+
+## Results
+- **Model Performance:**
+  - The Gradient Boosting model achieved the highest ROC-AUC score of **X.XX**, outperforming other classifiers.
+  - ANN demonstrated promising results in handling complex patterns in the data.
+- **Key Insights:**
+  - Credit history and payment behavior are the most significant predictors of loan default risk.
+  - High-income customers with stable credit utilization show significantly lower default probabilities.
+
+## Future Work
+- Expand the model to include additional socio-economic features.
+- Integrate real-time data pipelines for live risk analysis.
+- Enhance the dashboard with more granular visualizations and explanations using SHAP values.
+
+## Contributing
+Contributions are welcome! Feel free to submit a pull request or open an issue.
+
+  
