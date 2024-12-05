@@ -424,9 +424,12 @@ scl = [[0.0, 'rgb(210, 241, 198)'],[0.2, 'rgb(188, 236, 169)'],[0.4, 'rgb(171, 2
        [0.6, 'rgb(140, 227, 105)'],[0.8, 'rgb(105, 201, 67)'],[1.0, 'rgb(59, 159, 19)']]
 
 # Add text to display in the map
-metrics_df['text'] = metrics_df['state_codes'] + '<br>' +
-                    'Average loan interest rate: ' + metrics_df['interest_rate'] + '<br>' +
-                    'Average annual income: ' + metrics_df['annual_income']
+metrics_df['text'] = metrics_df['state_codes'] + '<br>' + \
+                     metrics_df['default_ratio'].astype(str) + '<br>' + \
+                     metrics_df['badloans_amount'].astype(str) + '<br>' + \
+                     metrics_df['percentage_of_badloans'].astype(str) + '<br>' + \
+                     metrics_df['average_dti'].astype(str) + '<br>' + \
+                     metrics_df['average_emp_length'].astype(str)
 
 # Create choropleth map for issued loans
 data = [dict(
