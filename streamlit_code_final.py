@@ -22,6 +22,7 @@ from keras.layers import Dense, Dropout
 from sklearn.preprocessing import label_binarize
 import plotly.graph_objects as go
 from collections import OrderedDict
+import os
 
 # Load data and column descriptions.
 data_file = """D:\Foundations_of_DataScience\Projects\Final_projects\lending_club_dataset_2007_2020\lending_club_clean.feather"""  # Replace with your CSV file path
