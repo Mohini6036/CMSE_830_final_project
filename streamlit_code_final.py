@@ -24,6 +24,8 @@ import plotly.graph_objects as go
 from collections import OrderedDict
 import os
 import warnings
+import plotly.graph_objects as go
+from collections import OrderedDict
 
 warnings.filterwarnings("ignore")
 # Load data and column descriptions.
@@ -394,15 +396,6 @@ layout = go.Layout(
 fig = go.Figure(data=data, layout=layout)
 iplot(fig, filename='stacked-bar')
 
-
-# Assuming the previous code is defined above this point, add the following visualization under the EDA tab:
-
-# Import necessary libraries for plotting
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-from collections import OrderedDict
 
 # Group data for visualization
 by_loan_amount = df.groupby(['region','addr_state'], as_index=False).loan_amount.sum()
