@@ -42,7 +42,7 @@ With this innovative tool, ProsperFinance transformed its loan evaluation proces
 # ========== DATA PROCESSING MODULE ==========
 def load_and_preprocess_data():
     """Load, clean, and preprocess the dataset."""
-    dfs = [pd.read_csv(f'chunk_{i}.csv') for i in range(51)]
+    dfs = [pd.read_csv(f'chunk_{i}.csv') for i in range(10)]
     data = pd.concat(dfs, ignore_index=True)
 
     # Drop unnecessary columns
@@ -289,47 +289,96 @@ def show_top_correlation_heatmap(data):
     # Display the heatmap in Streamlit
     st.pyplot(fig)
 
+# def show_model_parameters(models):
+#     st.header("Model Parameters")
+#     for model_name, model in models.items():
+#         st.subheader(model_name)
+#         st.json(model.get_params())
+
 def show_model_parameters(models):
     st.header("Model Parameters")
-    for model_name, model in models.items():
-        st.subheader(model_name)
-        st.json(model.get_params())
+    selected_model = st.selectbox("Select a model", list(models.keys()))
+    model = models[selected_model]
+    st.subheader(f"{selected_model} Parameters")
+    st.json(model.get_params())
 
-def evaluate_model(model, X_train, y_train, X_test, y_test):
-    st.subheader(f"Evaluation: {model.__class__.__name__}")
-    try:
-        # Train the model
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        st.text(classification_report(y_test, y_pred))
+# def evaluate_model(model, X_train, y_train, X_test, y_test):
+#     st.subheader(f"Evaluation: {model.__class__.__name__}")
+#     try:
+#         # Train the model
+#         model.fit(X_train, y_train)
+#         y_pred = model.predict(X_test)
+#         st.text(classification_report(y_test, y_pred))
 
-        if hasattr(model, "predict_proba"):
-            y_proba = model.predict_proba(X_test)
-            # Check for binary or multiclass
-            if len(np.unique(y_test)) == 2:
-                fpr, tpr, _ = roc_curve(y_test, y_proba[:, 1])
-            else:
-                # Handle multiclass by selecting one class
-                class_index = 1  # Change this to the index of the class to evaluate
-                y_test_binary = label_binarize(y_test, classes=np.unique(y_test))[:, class_index]
-                fpr, tpr, _ = roc_curve(y_test_binary, y_proba[:, class_index])
+#         if hasattr(model, "predict_proba"):
+#             y_proba = model.predict_proba(X_test)
+#             # Check for binary or multiclass
+#             if len(np.unique(y_test)) == 2:
+#                 fpr, tpr, _ = roc_curve(y_test, y_proba[:, 1])
+#             else:
+#                 # Handle multiclass by selecting one class
+#                 class_index = 1  # Change this to the index of the class to evaluate
+#                 y_test_binary = label_binarize(y_test, classes=np.unique(y_test))[:, class_index]
+#                 fpr, tpr, _ = roc_curve(y_test_binary, y_proba[:, class_index])
 
-            roc_auc = auc(fpr, tpr)
-            fig, ax = plt.subplots()
-            ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
-            ax.plot([0, 1], [0, 1], 'k--')
-            ax.set_title("ROC Curve")
-            ax.set_xlabel("False Positive Rate")
-            ax.set_ylabel("True Positive Rate")
-            ax.legend()
-            st.pyplot(fig)
-        else:
-            st.warning("Model does not support probability predictions.")
+#             roc_auc = auc(fpr, tpr)
+#             fig, ax = plt.subplots()
+#             ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
+#             ax.plot([0, 1], [0, 1], 'k--')
+#             ax.set_title("ROC Curve")
+#             ax.set_xlabel("False Positive Rate")
+#             ax.set_ylabel("True Positive Rate")
+#             ax.legend()
+#             st.pyplot(fig)
+#         else:
+#             st.warning("Model does not support probability predictions.")
 
-    except NotFittedError:
-        st.error("The model is not fitted. Check the training process.")
-    except ValueError as e:
-        st.error(f"ValueError: {e}")
+#     except NotFittedError:
+#         st.error("The model is not fitted. Check the training process.")
+#     except ValueError as e:
+#         st.error(f"ValueError: {e}")
+
+
+def evaluate_models(models, X_train, y_train, X_test, y_test):
+    selected_models = st.multiselect("Select models to evaluate", list(models.keys()))
+    
+    if selected_models:
+        for model_name in selected_models:
+            model = models[model_name]
+            st.subheader(f"Evaluation: {model_name}")
+            try:
+                # Train the model
+                model.fit(X_train, y_train)
+                y_pred = model.predict(X_test)
+                st.text(classification_report(y_test, y_pred))
+
+                if hasattr(model, "predict_proba"):
+                    y_proba = model.predict_proba(X_test)
+                    # Check for binary or multiclass
+                    if len(np.unique(y_test)) == 2:
+                        fpr, tpr, _ = roc_curve(y_test, y_proba[:, 1])
+                    else:
+                        # Handle multiclass by selecting one class
+                        class_index = 1  # Change this to the index of the class to evaluate
+                        y_test_binary = label_binarize(y_test, classes=np.unique(y_test))[:, class_index]
+                        fpr, tpr, _ = roc_curve(y_test_binary, y_proba[:, class_index])
+
+                    roc_auc = auc(fpr, tpr)
+                    fig, ax = plt.subplots()
+                    ax.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
+                    ax.plot([0, 1], [0, 1], 'k--')
+                    ax.set_title(f"{model_name} ROC Curve")
+                    ax.set_xlabel("False Positive Rate")
+                    ax.set_ylabel("True Positive Rate")
+                    ax.legend()
+                    st.pyplot(fig)
+                else:
+                    st.warning(f"{model_name} does not support probability predictions.")
+            
+            except Exception as e:
+                st.error(f"Error evaluating {model_name}: {e}")
+    else:
+        st.warning("Please select at least one model to evaluate.")
 
 # ----------- Main App Logic ----------- #
 # data = load_data()
@@ -346,9 +395,20 @@ X_test = scaler.transform(X_test)
 undersampler = RandomUnderSampler(random_state=42)
 X_train_under, y_train_under = undersampler.fit_resample(X_train, y_train)
 
+# models = {
+#     "Logistic Regression": LogisticRegression(max_iter=1000),
+#     "Gradient Boosting": GradientBoostingClassifier(random_state=42)
+# }
+
 models = {
     "Logistic Regression": LogisticRegression(max_iter=1000),
-    "Gradient Boosting": GradientBoostingClassifier(random_state=42)
+    "SVM": SVC(probability=True, kernel='rbf', random_state=42),
+    "Gradient Boosting": GradientBoostingClassifier(random_state=42),
+    "KNN": KNeighborsClassifier(),
+    "Naive Bayes": GaussianNB(),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42),
+    "LightGBM": LGBMClassifier(random_state=42)
 }
 
 tabs = ["Problem Statement", "Data Description","Initial Data Analysis", "EDA", "Correlation Heatmap", "Model Parameters", "Model Evaluation"]
@@ -362,6 +422,21 @@ elif selected_tab == "Initial Data Analysis":
     st.header("Initial Data Analysis")
     st.write("### Summary Statistics")
     st.dataframe(data.describe())
+
+
+    st.subheader("Columns with Missing Values")
+    missing_data = {
+        "Column": ["emp_title", "emp_length", "title", "zip_code", "last_pymnt_d", "hardship_flag"],
+        "Missing Count": [197785, 153833, 17500, 1, 3666, 28873]
+    }
+    df_missing = pd.DataFrame(missing_data)
+
+    st.subheader("Handling Missing Data")
+    st.write("""
+    - **Numerical Features**: Missing values in numerical columns were imputed using the mean of the respective column.
+    - **Categorical Features**: Missing values in categorical columns were imputed using the most frequent value in the respective column.
+    This ensures that the dataset remains consistent and minimizes the loss of information due to missing values.
+    """)
 elif selected_tab == "EDA":
     plot_eda(data)
 elif selected_tab == "Correlation Heatmap":
