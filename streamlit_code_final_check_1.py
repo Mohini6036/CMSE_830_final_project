@@ -24,9 +24,6 @@ from keras.layers import Dense, Dropout
 import warnings
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import label_binarize
-import tensorflow as tf
-
-tf.config.set_visible_devices([], 'GPU') 
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
