@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
@@ -24,6 +25,8 @@ import plotly.graph_objects as go
 from collections import OrderedDict
 import warnings
 
+
+# directory=r"D:\Foundations_of_DataScience\Projects\Final_projects\CMSE_830_final_project\streamlit_code_final.py"
 # Load data and column descriptions.
 warnings.filterwarnings("ignore")
 # Load data and column descriptions.
@@ -31,14 +34,14 @@ warnings.filterwarnings("ignore")
 column_description_file = "LCDataDictionary.xlsx" # Replace with your column description CSV file path
 dfs = []
 for i in range(9):
-    file_path = os.path.join(directory, f'chunk_{i}.csv')
+    file_path = os.path.join(f'chunk_{i}.csv')
     df = pd.read_csv(file_path)
     dfs.append(df)
 
 data = pd.concat(dfs, ignore_index=True)
 df=data.copy()
 
-data = pd.read_feather(data_file)
+# data = pd.read_feather(data_file)
 
 columns_to_remove = [
     "hardship_type",
@@ -68,7 +71,7 @@ data[categorical_cols] = categorical_imputer.fit_transform(data[categorical_cols
 categorical_cols = data.select_dtypes(include=['object']).columns
 for col in categorical_cols:
     data[col] = pd.factorize(data[col])[0]
-column_descriptions = pd.read_csv(column_description_file)
+column_descriptions = pd.read_excel(column_description_file)
 
 # Splitting the dataset into X and y
 X = data.drop("loan_status", axis=1)
@@ -182,12 +185,12 @@ elif selected_tab == "Initial Data Analysis":
 # Tab: Exploratory Data Analysis
 elif selected_tab == "Exploratory Data Analysis": 
     st.header("Exploratory Data Analysis") 
-    st.write("### Distribution of Variables") 
-    for col in data.select_dtypes(include=['float', 'int']).columns: 
-        st.write(f"Distribution of {col}") 
-        fig, ax = plt.subplots() 
-        sns.histplot(data[col], kde=True, ax=ax) 
-        st.pyplot(fig) 
+    # st.write("### Distribution of Variables") 
+    # for col in data.select_dtypes(include=['float', 'int']).columns: 
+    #     st.write(f"Distribution of {col}") 
+    #     fig, ax = plt.subplots() 
+    #     sns.histplot(data[col], kde=True, ax=ax) 
+    #     st.pyplot(fig) 
 
     # Additional EDA Code 
     df = data.rename(columns={"loan_amnt": "loan_amount", "funded_amnt": "funded_amount", 
@@ -208,7 +211,11 @@ elif selected_tab == "Exploratory Data Analysis":
     ax[2].set_title("Total committed by Investors", fontsize=14) 
     st.pyplot(fig) 
 
-    df['issue_d'] = pd.to_datetime(df['issue_d'], format='%b-%Y') 
+    st.title("Issuance of Loans Over Time")
+    st.write("This app visualizes the issuance of loans across different years.")
+    df['issue_d'] = pd.to_datetime(df['issue_d'], format='%Y-%m-%d', errors='coerce')
+    df['issue_d'] = pd.to_datetime(df['issue_d'], format='mixed', errors='coerce')
+    # df['issue_d'] = pd.to_datetime(df['issue_d'], format='%b-%Y', errors='coerce') 
     df['year'] = df['issue_d'].dt.year 
     fig, ax = plt.subplots(figsize=(12, 8)) 
     sns.barplot(x='year', y='loan_amount', data=df, hue='year', palette='tab10', estimator=sum, legend=True) 
@@ -219,20 +226,37 @@ elif selected_tab == "Exploratory Data Analysis":
 
     bad_loan = ["Charged Off", "Default", "Does not meet the credit policy. Status:Charged Off", 
                 "In Grace Period", "Late (16-30 days)", "Late (31-120 days)"] 
-    df['loan_condition'] = df['loan_status'].apply(lambda status: 'Bad Loan' if status in bad_loan else 'Good Loan') 
+    df['loan_condition'] = df['loan_status'].apply(lambda status: 'Bad Loan' if status in bad_loan else 'Good Loan')
 
+    st.title("Issuance of Loans and Loan Conditions")
+    st.write("This app visualizes the issuance of loans over time and the distribution of loan conditions.")
     fig, ax = plt.subplots(1, 2, figsize=(16, 8)) 
     colors = ["#3791D7", "#D72626"] 
     labels = ["Good Loans", "Bad Loans"] 
-    df["loan_condition"].value_counts().plot.pie(explode=[0, 0.25], autopct='%1.2f%%', ax=ax[0], 
-                                                 shadow=True, colors=colors, labels=labels, fontsize=12, startangle=70) 
+    loan_condition_counts = df['loan_condition'].value_counts()
+    # explode = [0.1 if i == loan_condition_counts.idxmax() else 0 for i in loan_condition_counts.index]
+    loan_condition_counts.plot.pie(
+    explode=[0.1 if i == loan_condition_counts.idxmax() else 0 for i in loan_condition_counts.index],  # Keyword argument for explode
+    autopct='%1.2f%%',  # Show percentages on the pie chart
+    ax=ax[0],           # Specify the axis
+    shadow=True,        # Add shadow for visual effect
+    colors=sns.color_palette('pastel'),  # Color palette
+    labels=loan_condition_counts.index,  # Labels for each segment
+    fontsize=12,         # Font size for labels
+    startangle=70,       # Start angle for the pie chart
+    legend=True          # Show legend
+    )
+    # df["loan_condition"].value_counts().plot.pie(explode, autopct='%1.2f%%', ax=ax[0], 
+    #                                              shadow=True, colors=colors, labels=labels, fontsize=12, startangle=70) 
     ax[0].set_ylabel('% of Condition of Loans', fontsize=14) 
     sns.barplot(x="year", y="loan_amount", hue="loan_condition", data=df, 
                 palette=["#3791D7", "#E01E1B"], estimator=lambda x: len(x) / len(df) * 100, ax=ax[1]) 
     ax[1].set(ylabel="(%)") 
     st.pyplot(fig) 
 
-    # Define regions based on states 
+    # Define regions based on states
+    df['loan_amount'] = pd.to_numeric(df['loan_amount'], errors='coerce')
+    df['loan_amount'] = df['loan_amount'].fillna(0) 
     west = ['CA', 'OR', 'UT', 'WA', 'CO', 'NV', 'AK', 'MT', 'HI', 'WY', 'ID'] 
     south_west = ['AZ', 'TX', 'NM', 'OK'] 
     south_east = ['GA', 'NC', 'VA', 'FL', 'KY', 'SC', 'LA', 'AL', 'WV', 'DC', 'AR', 'DE', 'MS', 'TN'] 
@@ -249,13 +273,19 @@ elif selected_tab == "Exploratory Data Analysis":
     df_dates = pd.DataFrame(data=group_dates[['issue_d', 'region', 'loan_amount']]) 
 
     fig, ax = plt.subplots(figsize=(15, 6)) 
-    by_issued_amount = df_dates.groupby(['issue_d', 'region']).loan_amount.sum() 
+    by_issued_amount = df_dates.groupby(['issue_d', 'region']).loan_amount.sum().unstack()
     by_issued_amount.unstack().plot(stacked=False, colormap=plt.cm.Set3, grid=False, legend=True, ax=ax) 
     ax.set_title('Loans issued by Region', fontsize=16) 
     st.pyplot(fig)
 
         # Employment length processing
-    df['emp_length_int'] = np.nan 
+    df['emp_length_int'] = 0
+    df['interest_rate'] = pd.to_numeric(df['interest_rate'], errors='coerce')
+    df['emp_length_int'] = pd.to_numeric(df['emp_length_int'], errors='coerce')
+    df['dti'] = pd.to_numeric(df['dti'], errors='coerce')
+    df['annual_income'] = pd.to_numeric(df['annual_income'], errors='coerce')
+    df['interest_rate'] = df['interest_rate'].fillna(0)
+
     for col in [df]: 
         col.loc[col['emp_length'] == '10+ years', "emp_length_int"] = 10 
         col.loc[col['emp_length'] == '9 years', "emp_length_int"] = 9 
@@ -271,25 +301,60 @@ elif selected_tab == "Exploratory Data Analysis":
         col.loc[col['emp_length'] == 'n/a', "emp_length_int"] = 0 
 
     # Visualize additional insights
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    sns.set_style('whitegrid')
 
-    by_interest_rate = df.groupby(['year', 'region']).interest_rate.mean() 
-    by_interest_rate.unstack().plot(kind='area', stacked=True, colormap=plt.cm.inferno, grid=False, legend=False, ax=ax1) 
+    # Create the figure and subplots
+    f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))  # Set figsize here
+    cmap = plt.cm.inferno
+
+    # Check the data types of the relevant columns
+    st.write("Data Types in the DataFrame:")
+    st.write(df.dtypes)
+
+    # Ensure the relevant columns are numeric
+    df['interest_rate'] = pd.to_numeric(df['interest_rate'], errors='coerce')
+    df['emp_length_int'] = pd.to_numeric(df['emp_length_int'], errors='coerce')
+    df['dti'] = pd.to_numeric(df['dti'], errors='coerce')
+    df['annual_income'] = pd.to_numeric(df['annual_income'], errors='coerce')
+    df['interest_rate'] = df['interest_rate'].astype(int)
+    df['emp_length_int'] = df['emp_length_int'].astype(int)
+    df['dti'] = df['dti'].astype(int)
+    df['annual_income'] = df['annual_income'].astype(int)
+
+    # Group by 'year' and 'region' for different features
+    by_interest_rate = df.groupby(['year', 'region']).interest_rate.mean()
+    by_interest_rate_unstacked = by_interest_rate.unstack()
+
+    # Fill NaN values with 0 or any appropriate value if necessary
+    by_interest_rate_unstacked = by_interest_rate_unstacked.fillna(0)
+
+    # Plot the data
+    # by_interest_rate_unstacked.plot(kind='area', stacked=True, colormap=cmap, grid=False, legend=False, ax=ax1)
     ax1.set_title('Average Interest Rate by Region', fontsize=14)
 
-    by_employment_length = df.groupby(['year', 'region']).emp_length_int.mean() 
-    by_employment_length.unstack().plot(kind='area', stacked=True, colormap=plt.cm.inferno, grid=False, legend=False, ax=ax2)
+    by_employment_length = df.groupby(['year', 'region']).emp_length_int.mean()
+    by_employment_length_unstacked = by_employment_length.unstack()
+    by_employment_length_unstacked = by_employment_length_unstacked.fillna(0)
+    by_employment_length_unstacked.plot(kind='area', stacked=True, colormap=cmap, grid=False, legend=False, ax=ax2)
+    ax2.set_title('Average Employment Length by Region', fontsize=14)
 
-    by_dti = df.groupby(['year', 'region']).dti.mean() 
-    by_dti.unstack().plot(kind='area', stacked=True, colormap=plt.cm.cool, grid=False, legend=False, ax=ax3) 
+    by_dti = df.groupby(['year', 'region']).dti.mean()
+    by_dti_unstacked = by_dti.unstack()
+    by_dti_unstacked = by_dti_unstacked.fillna(0)
+    by_dti_unstacked.plot(kind='area', stacked=True, colormap=cmap, grid=False, legend=False, ax=ax3)
     ax3.set_title('Average Debt-to-Income by Region', fontsize=14)
 
-    by_income = df.groupby(['year', 'region']).annual_income.mean() 
-    by_income.unstack().plot(kind='area', stacked=True, colormap=plt.cm.cool, grid=False, ax=ax4) 
+    by_income = df.groupby(['year', 'region']).annual_income.mean()
+    by_income_unstacked = by_income.unstack()
+    by_income_unstacked = by_income_unstacked.fillna(0)
+    by_income_unstacked.plot(kind='area', stacked=True, colormap=cmap, grid=False, ax=ax4)
     ax4.set_title('Average Annual Income by Region', fontsize=14)
+
+    # Add legend to the last plot
     ax4.legend(bbox_to_anchor=(-1.0, -0.5, 1.8, 0.1), loc=10, prop={'size': 12}, ncol=5, mode="expand", borderaxespad=0.)
 
-    st.pyplot(fig)
+    # Show the plot in Streamlit
+    st.pyplot(f)
 
     # Assuming the previous data processing code and library imports are already included
 
