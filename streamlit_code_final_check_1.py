@@ -4,12 +4,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, label_binarize
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import classification_report, roc_curve, auc
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 from imblearn.under_sampling import RandomUnderSampler
 from collections import OrderedDict
 import plotly.graph_objects as go
@@ -98,11 +104,17 @@ def plot_eda(data):
     """Create exploratory data analysis visualizations."""
     st.header("Exploratory Data Analysis")
     st.write("### Distribution of Variables") 
-    for col in data.select_dtypes(include=['float', 'int']).columns: 
-        st.write(f"Distribution of {col}") 
-        fig, ax = plt.subplots() 
-        sns.histplot(data[col], kde=True, ax=ax) 
-        st.pyplot(fig) 
+    selected_column = st.selectbox("Select a column to view its distribution", data.select_dtypes(include=['float', 'int']).columns)
+    if selected_column:
+        st.write(f"Distribution of {selected_column}")
+        fig, ax = plt.subplots()
+        sns.histplot(data[selected_column], kde=True, ax=ax)
+        st.pyplot(fig)
+    # for col in data.select_dtypes(include=['float', 'int']).columns: 
+    #     st.write(f"Distribution of {col}") 
+    #     fig, ax = plt.subplots() 
+    #     sns.histplot(data[col], kde=True, ax=ax) 
+    #     st.pyplot(fig) 
     # st.subheader("Distribution of Loan Amount")
     # fig, ax = plt.subplots()
     # sns.histplot(data['loan_amnt'], kde=True, ax=ax)
@@ -180,11 +192,11 @@ def plot_eda(data):
     group_dates['loan_amount'] = group_dates['loan_amount'] / 1000 
     df_dates = pd.DataFrame(data=group_dates[['issue_d', 'region', 'loan_amount']]) 
 
-    fig, ax = plt.subplots(figsize=(15, 6)) 
-    by_issued_amount = df_dates.groupby(['issue_d', 'region']).loan_amount.sum() 
-    by_issued_amount.unstack().plot(stacked=False, colormap=plt.cm.Set3, grid=False, legend=True, ax=ax) 
-    ax.set_title('Loans issued by Region', fontsize=16) 
-    st.pyplot(fig)
+    # fig, ax = plt.subplots(figsize=(15, 6)) 
+    # by_issued_amount = df_dates.groupby(['issue_d', 'region']).loan_amount.sum() 
+    # by_issued_amount.unstack().plot(stacked=False, colormap=plt.cm.Set3, grid=False, legend=True, ax=ax) 
+    # ax.set_title('Loans issued by Region', fontsize=16) 
+    # st.pyplot(fig)
     # Summary section
     st.subheader("Summary of loans by region")
     st.write("SouthEast, West, and NorthEast regions had the highest amount of loans issued.")
@@ -340,6 +352,12 @@ def show_model_parameters(models):
 
 
 def evaluate_models(models, X_train, y_train, X_test, y_test):
+    # Debugging: Check if 'models' is a dictionary
+    if not isinstance(models, dict):
+        st.error("Expected 'models' to be a dictionary.")
+        print("models is of type:", type(models))  # Print type of models to the console
+        return
+
     selected_models = st.multiselect("Select models to evaluate", list(models.keys()))
     
     if selected_models:
@@ -430,7 +448,7 @@ elif selected_tab == "Initial Data Analysis":
         "Missing Count": [197785, 153833, 17500, 1, 3666, 28873]
     }
     df_missing = pd.DataFrame(missing_data)
-
+    st.dataframe(df_missing)
     st.subheader("Handling Missing Data")
     st.write("""
     - **Numerical Features**: Missing values in numerical columns were imputed using the mean of the respective column.
@@ -445,5 +463,5 @@ elif selected_tab == "Model Parameters":
     show_model_parameters(models)
 elif selected_tab == "Model Evaluation":
     for model_name, model in models.items():
-        evaluate_model(model, X_train_under, y_train_under, X_test, y_test)
+        evaluate_models(models, X_train, y_train, X_test, y_test)
 
