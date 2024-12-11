@@ -1,3 +1,5 @@
+tensorflow==2.11.0
+keras==2.11.0
 streamlit
 pandas
 numpy
@@ -7,5 +9,4 @@ scikit-learn
 xgboost
 lightgbm
 imblearn
-keras
 plotly
