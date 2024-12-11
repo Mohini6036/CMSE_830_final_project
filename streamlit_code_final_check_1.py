@@ -24,6 +24,7 @@ from keras.layers import Dense, Dropout
 import warnings
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import label_binarize
+import tensorflow as tf
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
