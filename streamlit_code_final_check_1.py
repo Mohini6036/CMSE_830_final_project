@@ -48,7 +48,7 @@ With this innovative tool, ProsperFinance transformed its loan evaluation proces
 # ========== DATA PROCESSING MODULE ==========
 def load_and_preprocess_data():
     """Load, clean, and preprocess the dataset."""
-    dfs = [pd.read_csv(f'chunk_{i}.csv') for i in range(10)]
+    dfs = [pd.read_csv(f'chunk_{i}.csv') for i in range(73)]
     data = pd.concat(dfs, ignore_index=True)
 
     # Drop unnecessary columns
@@ -120,6 +120,43 @@ def plot_eda(data):
     # sns.histplot(data['loan_amnt'], kde=True, ax=ax)
     # ax.set_title("Loan Amount Distribution")
     # st.pyplot(fig)
+
+    st.write("### Loan Risk Overview")
+    st.write(
+        "Currently, bad loans consist of 13.42% of total loans. However, this percentage is subject to change, "
+        "as we still have current loans which carry the risk of becoming bad loans. Therefore, the risk of bad loans "
+        "could increase in the future."
+    )
+
+    st.write("### Regional Loan Trends")
+    st.write(
+        "The NorthEast region stands out as the most attractive region for funding loans to borrowers. "
+        "This could indicate a higher demand for loans or more favorable economic conditions in this region."
+    )
+
+    st.write("### Income Trends")
+    st.write(
+        "The SouthWest and West regions have seen a slight increase in median income over the past years. "
+        "This could suggest improving economic conditions in these areas, which may influence borrowers' ability to repay loans."
+    )
+
+    st.write("### Interest Rates and Loan Volume")
+    st.write(
+        "Average interest rates have been declining since 2012. This decline could explain the increase in the volume of loans, "
+        "as lower rates make borrowing more attractive and affordable."
+    )
+
+    st.write("### Employment Length by Region")
+    st.write(
+        "Employment length tends to be greater in the SouthWest and West regions, which may indicate more stable employment patterns "
+        "in these areas compared to others."
+    )
+
+    st.write("### Debt-to-Income (DTI) Trends")
+    st.write(
+        "Clients located in the NorthEast and MidWest regions have not experienced a drastic increase in debt-to-income (DTI) ratios "
+        "compared to clients in other regions. This may suggest that borrowers in these regions are managing their debt more effectively."
+    )
 
     # Additional EDA visualizations
     df = data.rename(columns={"loan_amnt": "loan_amount", "funded_amnt": "funded_amount", 
@@ -199,10 +236,11 @@ def plot_eda(data):
     # st.pyplot(fig)
     # Summary section
     st.subheader("Summary of loans by region")
-    st.write("SouthEast, West, and NorthEast regions had the highest amount of loans issued.")
-    st.write("West and SouthWest had a rapid increase in debt-to-income starting in 2012.")
-    st.write("West and SouthWest had a rapid decrease in interest rates. This might explain the increase in debt-to-income.")
 
+    st.write("The number of loans issued has increased dramatically over time, especially in the late 2000s and beyond, with a notable peak around 2008-2010.")
+    st.write("The rise in loan issuance appears to be consistent across all regions, though each region shows some variability in the magnitude of loans issued.")
+    st.write("The region with the highest issuance around 2018 seems to be the West (yellow), followed by SouthEast (green) and MidWest (cyan).")
+    st.write("There is a sharp drop in loan issuance in the final few years, possibly indicating a decline in loan issuance during the COVID-19 pandemic or another major economic event.")
 
     st.subheader("Loan Conditions by Region from the actual data")
     loan_conditions_table = {
@@ -241,6 +279,123 @@ def plot_eda(data):
         col.loc[col['emp_length'] == '1 year', "emp_length_int"] = 1 
         col.loc[col['emp_length'] == '< 1 year', "emp_length_int"] = 0.5 
         col.loc[col['emp_length'] == 'n/a', "emp_length_int"] = 0 
+
+    st.header("Trends in Financial Metrics by Region")
+
+    st.write("### Average Interest Rate by Region")
+    st.write(
+        "The interest rates have declined over the years, with the **SouthWest** region consistently having the highest interest rates, "
+        "followed by **NorthEast**, **West**, **SouthEast**, and **MidWest**, which has the lowest interest rates. "
+        "This indicates a general trend of decreasing interest rates across all regions."
+    )
+
+    st.write("### Average Employment Length by Region")
+    st.write(
+        "The **SouthWest** and **West** regions show a higher and steadily increasing employment length, indicating more stability in these regions' job markets."
+    )
+
+    st.write("### Average Debt-to-Income (DTI) by Region")
+    st.write(
+        "The **SouthEast** and **West** regions have seen the most significant increase in debt-to-income ratios, which could indicate rising levels of debt relative to income. "
+        "In contrast, the **MidWest** region has the lowest DTI ratios and has experienced the least growth over the years, showing a more conservative approach to debt."
+    )
+
+    st.write("### Average Annual Income by Region")
+    st.write(
+        "The **West** and **SouthWest** regions exhibit the highest growth in annual income, reflecting improving economic conditions and possibly higher wages. "
+        "Meanwhile, the **MidWest** region, while showing growth, still has the lowest income levels across the years."
+    )
+
+
+    data = {
+    'state_codes': ['IA', 'IL', 'IN', 'KS', 'MI'],
+    'issued_loans': [65175, 1386459575, 545376100, 278894125, 824198675],
+    'interest_rate': [0.13, 0.13, 0.13, 0.13, 0.13],
+    'annual_income': [42898.70, 81859.72, 71734.49, 73410.86, 73355.45]
+    }
+
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+
+    # Display the title and table
+    st.title("Loans and Income Data")
+    st.write("### Loans Issued by State and Corresponding Data")
+    st.dataframe(df)
+
+    st.title("Issued Loans Across U.S. States")
+
+    # Description of the map
+    st.write("""
+    - **California** and **Texas** stand out with the highest issued loans, as seen by the darkest green color.
+    - Other states show progressively lighter shades, indicating lower loan volumes.
+    - The color scale ranges from 0 to 4 billion USD in loan amounts.
+    """)
+
+    st.title("Analysis of Loan Data by Income Categories")
+
+    # Description of the four plots
+    st.write("""
+    
+    **Top Left Plot (Violin Plot of Loan Amount by Income Category):**
+    - Medium and High income categories have a wider distribution of loan amounts, reaching up to 40,000.
+    - Low income category shows a narrower distribution with most loan amounts centered around lower values.
+
+    **Top Right Plot (Violin Plot of Loan Condition by Income Category):**
+    - The distribution of loan conditions is primarily at the lower end (close to 0) across all income categories, indicating a majority of loans in a certain condition.
+
+    **Bottom Left Plot (Box Plot of Employment Length by Income Category):**
+    - The median employment length is around 6 years for all income categories.
+    - The interquartile range (IQR) is similar, spanning roughly from 2 to 10 years for all categories.
+
+    **Bottom Right Plot (Box Plot of Interest Rate by Income Category):**
+    - The median interest rate is slightly lower for the High income category compared to Medium and Low categories.
+    - The IQR is consistent across all categories, ranging from approximately 0.05 to 0.20, with several outliers in the interest rate data.
+    """)
+
+    st.title("State-wise Loan Default Analysis")
+
+    # Create the DataFrame with the provided data
+    data_Default = {
+        "state_codes": ["AK", "AL", "AR", "AZ", "CA"],
+        "default_ratio": [0.149, 0.190, 0.188, 0.153, 0.160],
+        "badloans_amount": [648, 4158, 2630, 7029, 41780],
+        "percentage_of_badloans": [0.220, 1.412, 0.893, 2.387, 14.188],
+        "average_dti": [15.726, 19.168, 20.888, 20.789, 19.727],
+        "average_emp_length": [6.128, 6.361, 6.150, 5.573, 5.824]
+    }
+
+    df_Default = pd.DataFrame(data_Default)
+
+    # Display the table
+    st.write(df_Default)
+
+    st.title("Key Observations from the Risk Heat Map")
+
+    # Display the observations as bullet points
+    st.write("""
+    - **Risk Levels:** The observations indicate the risk percentages range from 0% to 0.15% or higher.
+    - **High-Risk Areas:** States with darker shades of red are identified as high-risk regions.
+    - **No Data:** One state in the center is colored gray, indicating either no data or zero risk.
+    """)
+    st.title("Loans and Interest Rates by Credit Score (2008 to 2020)")
+
+    # Add a description of the first graph: Loans Issued by Credit Score
+    st.write("""
+    ### Loans Issued by Credit Score:
+    - **Time Range:** 2008 to 2020.
+    - **Y-Axis Values:** 0 to 25,000 loans.
+    - **Credit Scores Represented:** A, B, C, D, E, F, and G.
+    """)
+
+    # Add a description of the second graph: Interest Rates by Credit Score
+    st.write("""
+    ### Interest Rates by Credit Score:
+    - **Time Range:** 2008 to 2020.
+    - **Y-Axis Values:** 0.05 to 0.30 interest rate.
+    - **Credit Scores Represented:** A, B, C, D, E, F, and G.
+    """)
+
+
 
     # fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
 
