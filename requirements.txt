@@ -11,4 +11,3 @@ xgboost
 lightgbm
 imblearn
 keras
-collections
