@@ -48,7 +48,7 @@ With this innovative tool, ProsperFinance transformed its loan evaluation proces
 # ========== DATA PROCESSING MODULE ==========
 def load_and_preprocess_data():
     """Load, clean, and preprocess the dataset."""
-    dfs = [pd.read_csv(f'chunk_{i}.csv') for i in range(73)]
+    dfs = [pd.read_csv(f'chunk_{i}.csv') for i in range(49)]
     data = pd.concat(dfs, ignore_index=True)
 
     # Drop unnecessary columns
